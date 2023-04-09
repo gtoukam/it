@@ -14,29 +14,19 @@ provider "aws" {
   region = local.aws_region
 }
 
-
-terraform {
-  backend "s3" {
-    bucket         = "my-terraform-state-bucket-s3"
-    key            = "ec2/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "my-terraform-state-locks-s3"
-  }
-}
-
 locals {
   aws_region    = "us-east-1"
   instance_type = "t2.micro"
-  key_name      = "terraform"
+  key_name      = "s4ball"
 
-  vpc_id    = "vpc-068852590ea4b093b"
-  subnet_id = "subnet-096d45c28d9fb4c14"
+  vpc_id    = "vpc-0d66b7030e972c183"
+  subnet_id = "subnet-08a60a239eecb0d66"
 
   common_tags = {
     "AssetID"       = "2560"
     "AssetName"     = "Insfrastructure"
     "Teams"         = "DEL"
-    "Environment"   = "dev"
+    "Environment"   = "qa"
     "Project"       = "alpha"
     "CreateBy"      = "Terraform"
     "cloudProvider" = "aws"
@@ -49,6 +39,5 @@ module "ec2_module" {
   key_name      = local.key_name
   vpc_id        = local.vpc_id
   subnet_id     = local.subnet_id
-
-  common_tags = local.common_tags
+  common_tags   = local.common_tags
 }
