@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  proxy:
+    image: nginx
+    ports:
+      - 8070:80
+    volumes:
+      - ./configurations/nginx.conf:/etc/nginx/nginx.conf
+    # ensures that the container is always restarted if it stops for any reason
+    restart: always
+    # This option sets the container's filesystem to read-only mode. It prevents any writes or modifications to the container's file system
+    read_only: true
+    user: "100"
+    networks:
+      - mynetwork
+    healthcheck:
+      # It defines the command to be executed for the health check. In this case, the health check will run the command curl -f http://localhost to check if the service is responding properly
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8070"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      update_config:
+        #  It specifies that only one replica should be updated at a 
+        parallelism: 1
+        # It introduces a delay of 10 seconds between updating each replica.
+        delay: 10s
+        # It ensures that the replicas are updated in a sequential order, starting with the first replica.
+        order: start-first
+        # If an update fails, it triggers a rollback to the previous version.
+        failure_action: rollback
+      restart_policy:
+        #  It specifies that the service should be restarted only if it fails.
+        condition: on-failure
+        # condition: any
+        #  It introduces a delay of 50 seconds before restarting the service after a failure.
+        delay: 50s
+        max_attempts: 10
+        window: 120s
+    # resources:
+    #   reservations:
+    #     cpus: '1'
+    #     memory: 1024M
+    #   limits:
+    #     cpus: '0.5'
+    #     memory: 512M
+
+networks:
+  mynetwork:
+    driver: overlay

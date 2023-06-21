@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  proxy:
+    image: nginx
+    ports:
+      - 8090:8000
+    volumes:
+      - nginx_config:/etc/nginx/conf.d
+    networks:
+      - ee-001
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 50s
+        max_attempts: 10
+        window: 120s
+        
+networks:
+  ee-001:
+    driver: overlay
+
+volumes:
+    nginx_config:
+        driver: local
+        driver_opts:
+            type: nfs
+            o: addr=44.204.10.212,rw
+            device: ":/nfsshare/nginx"
